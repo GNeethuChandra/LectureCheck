@@ -1,0 +1,42 @@
+.sidebar ul li:hover{
+   background-color: grey;
+   border-radius: 5px;
+   cursor: pointer;
+   
+}
+.sidebar ul li:hover a{
+
+    color: white;
+}
+.active{
+   background-color: grey;
+   border-radius: 5px;
+   color:white;
+}
+.sidebar hr.text-white {
+    text-decoration: none;
+  }
+  .sidebar {
+    background-color: rgb(24, 21, 39);
+    color: white;
+}
+sidebar {
+  transition: all 0.3s;
+}
+
+/* Media query for small screens */
+@media (max-width: 768px) {
+  .sidebar {
+      position: absolute;
+      width: 250px;
+      transform: translateX(-250px);
+  }
+
+  .sidebar.active {
+      transform: translateX(0);
+  }
+}
+
+.nav-item {
+  cursor: pointer;
+}

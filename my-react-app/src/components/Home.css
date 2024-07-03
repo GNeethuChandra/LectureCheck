@@ -1,0 +1,116 @@
+/*.home-container {
+    background-color: #343a40;
+    color: #ffffff;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .home-container {
+  
+    
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  
+
+    
+
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+  }
+  
+  .home-content {
+   max-width: 800px; 
+    padding: 0 15px;
+  }
+  
+  .home-heading {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 20%;
+    color: #ffc107; 
+  }
+  
+  .home-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  
+  .home-button {
+    font-size: 1.25rem;
+  }
+  
+  .home-button:hover {
+    background-color: #ffc107; 
+    border-color: #ffc107; 
+    color: #343a40; 
+  }*/
+  .home-container {
+    background-color: #343a40;
+    color: #ffffff;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+}
+
+.home-content {
+    max-width: 800px; 
+    padding: 0 15px;
+}
+
+.home-heading {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 20%;
+    color: #ffc107;
+}
+
+.home-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.home-button {
+    font-size: 1.25rem;
+}
+
+.home-button:hover {
+    background-color: #ffc107; 
+    border-color: #ffc107; 
+    color: #343a40; 
+}
+
+/* Media Queries for Responsive Background Color */
+@media (max-width: 1200px) {
+    .home-container {
+        background-color: #282c34; /* Darker background color for medium screens */
+    }
+}
+
+@media (max-width: 992px) {
+    .home-container {
+        background-color: #1c1f24; /* Even darker background color for smaller screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .home-container {
+        background-color: #121417; /* Darkest background color for mobile devices */
+    }
+}
+
+  
