@@ -6,10 +6,11 @@ import './App.css';
 import Home from './components/Home';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
+import PdfTextDisplay from './components/PdfTextDisplay.js';
 import Sidebar from './components/Sidebar';
+import SimilarityScore from './components/SimilarityScore.js';
 import Upload from './components/Upload.js';
 import UploadList from './components/UploadList.js';
-
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [medias, setMedias] = useState([]);
@@ -48,6 +49,7 @@ function App() {
           </div>
         )}
         <div className='col overflow-auto'>
+         
           <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
           <Routes>
             <Route path='/login' element={<Login onLogin={handleLogin} />} />
@@ -55,6 +57,8 @@ function App() {
             <Route path='/uploadvd' element={isLoggedIn ? <UploadList medias={medias} /> : <Navigate to="/login" />} />
             <Route path='/' element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
             <Route path='*' element={<Navigate to={isLoggedIn ? "/" : "/login"} />} />
+            <Route path='/PdfTextDisplay' element={<PdfTextDisplay></PdfTextDisplay>} />
+            <Route path="/similarity-score" element={<SimilarityScore />} />
           </Routes>
         </div>
       </div>

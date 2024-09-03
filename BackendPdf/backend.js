@@ -7,6 +7,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
+const pdfParse = require('pdf-parse');
 
 require('dotenv').config();
 
@@ -202,6 +203,19 @@ app.get('/api/v1/media/all', async (req, res) => {
    }
  });
 
+
+ // Example function to fetch transcription texts
+ async function fetchPdfText() {
+  try {
+    const pdfDocument = await PdfModel.findOne().sort({ _id: -1 }); // Fetch latest PDF document
+    return pdfDocument ? pdfDocument.text : '';
+  } catch (error) {
+    console.error('Error fetching PDF text:', error);
+    return '';
+  }
+}
+ 
+
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/audios', express.static(path.join(__dirname, 'audios')));
@@ -222,7 +236,8 @@ const pdfUpload = multer({ storage: pdfStorage });
 
 const pdfSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  pdf: { type: String, required: true }
+  pdf: { type: String, required: true },
+  text: { type: String }
 });
 const PdfModel = mongoose.model("pdfDetails", pdfSchema);
 
@@ -231,21 +246,50 @@ app.post("/upload-files", pdfUpload.single("file"), async (req, res) => {
   console.log("Uploaded file:", req.file);
   const title = req.body.title;
   const fileName = req.file.filename;
-  try {
-    await PdfModel.create({ title: title, pdf: fileName });
-    console.log("File saved to database:", fileName);
-    res.send({ status: "ok" });
-  } catch (error) {
-    console.error("Error saving file to database:", error);
-    res.json({ status: error });
-  }
+  const filePath = path.join(__dirname, 'files', fileName);
+
+  
+      try {
+        const pdfBuffer = fs.readFileSync(filePath);
+        const data = await pdfParse(pdfBuffer);
+    
+        await PdfModel.create({ title: title, pdf: fileName, text: data.text });
+        console.log("File saved to database:", fileName);
+    
+        const transcription_texts = await fetchTranscriptionText();
+        const pdf_texts = data.text;
+    
+        if (transcription_texts && pdf_texts) {
+          const similarityScore = await calculateSimilarity(transcription_texts, pdf_texts);
+          res.send({ status: "ok", similarityScore: similarityScore });
+        } else {
+          console.log("Skipping similarity calculation: Transcription or PDF text not available.");
+          res.send({ status: "ok", message: "Skipping similarity calculation: Transcription or PDF text not available." });
+        }
+       } 
+       catch (error) {
+        console.error("Error saving file to database:", error);
+        res.json({ status: error });
+      }
+        
+    
+   
 });
+async function fetchTranscriptionText() {
+  try {
+    const transcription = await Transcription.findOne().sort({ _id: -1 }); // Fetch latest transcription
+    return transcription ? transcription.transcription : '';
+  } catch (error) {
+    console.error('Error fetching transcription text:', error);
+    return '';
+  }
+}
 
 app.get("/get-files", async (req, res) => {
   console.log("Get files request received");
   try {
     const data = await PdfModel.find({});
-    console.log("Files retrieved from database:", data);
+    console.log("Files retrieved from database"/*, data*/);
     res.send({ status: "ok", data: data });
   } catch (error) {
     console.error("Error retrieving files from database:", error);
@@ -286,6 +330,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
 // Ensure directories exist
 const ensureDirectoryExistence = (dir) => {
   if (!fs.existsSync(dir)) {
@@ -293,10 +338,85 @@ const ensureDirectoryExistence = (dir) => {
   }
 };
 
+
+
+async function calculateSimilarity(transcription_texts, pdf_texts) {
+  try {
+    if (!transcription_texts || !pdf_texts) {
+      console.error('Both transcription_text and pdf_text are required.');
+      return { error: 'Both transcription_text and pdf_text are required.' };
+    }
+
+    const response = await axios.post('http://localhost:5001/api/similarity', {
+      transcription_texts,
+      pdf_texts
+    });
+
+    // console.log('Similarity score:', response.data);
+    console.log('Similarity score:', response.data.similarity_score);
+    return response.data; // Assuming response.data contains the similarity score
+  } catch (error) {
+    console.error('Error calculating similarity:', error);
+    return { error: 'Error calculating similarity' };
+  }
+}
+// Endpoint to calculate similarity score
+app.get('/api/v1/similarity-score', async (req, res) => {
+  try {
+    const transcription_texts = await fetchTranscriptionText();
+    const pdf_texts = await fetchPdfText();
+
+    if (transcription_texts && pdf_texts) {
+      const similarityScoreResponse = await calculateSimilarity(transcription_texts, pdf_texts);
+      const similarityScore = similarityScoreResponse.similarity_score;
+
+      res.json({ similarity_score: similarityScore });
+      
+    } else {
+      res.status(400).json({ error: 'Transcription text or PDF text not available.' });
+    }
+  } catch (error) {
+    console.error('Error fetching similarity score:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
 ensureDirectoryExistence(path.join(__dirname, 'uploads'));
 ensureDirectoryExistence(path.join(__dirname, 'audios'));
 ensureDirectoryExistence(path.join(__dirname, 'transcription'));
 ensureDirectoryExistence(path.join(__dirname, 'files'));
+// Route to delete a PDF file
+app.delete('/delete-file/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Find the PDF document in the database
+    const pdf = await PdfModel.findById(id);
+    if (!pdf) {
+      return res.status(404).json({ status: "error", message: "PDF not found" });
+    }
+
+    // Construct the file path
+    const filePath = path.join(__dirname, 'files', pdf.pdf);
+
+    // Delete the PDF file from the server
+    fs.unlink(filePath, async (err) => {
+      if (err) {
+        console.error('Error deleting file from server:', err);
+        return res.status(500).json({ status: "error", message: "Failed to delete file from server" });
+      }
+
+      // Remove the PDF record from the database
+      await PdfModel.findByIdAndDelete(id);
+      res.json({ status: "ok", message: "PDF deleted successfully" });
+    });
+  } catch (error) {
+    console.error('Error deleting PDF:', error);
+    res.status(500).json({ status: "error", message: "Failed to delete PDF" });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

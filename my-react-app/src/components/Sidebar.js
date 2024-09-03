@@ -34,23 +34,23 @@ function Sidebar() {
                         onClick={e => {setActive(3);toggleSidebar();}}>
                         <NavLink to="/uploadvd" className='p-1 text-white text-decoration-none'>
                             <i className='bi-cloud-upload-fill me-3 fs-4'></i>
-                            <span className='fs-4 text-white'>Upload Video</span>
+                            <span className='fs-4 text-white'>Uploads</span>
                         </NavLink>
                     </li>
-                    <li className={active === 4 ? 'active nav-item p-2' : "nav-item p-2"}
+                    {/* <li className={active === 4 ? 'active nav-item p-2' : "nav-item p-2"}
                         onClick={e => {setActive(4);toggleSidebar();}}>
                         < NavLink to="/report" className='p-1 text-white text-decoration-none'>
                             <i className='bi-graph-up me-3 fs-4'></i>
                             <span className='fs-4 text-white'>Match Report</span>
                         </NavLink>
-                    </li>
-                    <li className={active === 5 ? 'active nav-item p-2' : "nav-item p-2"}
+                    </li> */}
+                    {/* <li className={active === 5 ? 'active nav-item p-2' : "nav-item p-2"}
                         onClick={e => {setActive(5);toggleSidebar();}}>
                         <NavLink to="/feedback" className='p-1 text-white text-decoration-none'>
                             <i className='bi-chat-dots me-3 fs-4'></i>
                             <span className='fs-4 text-white'>Feedback</span>
                         </NavLink>
-                    </li>
+                    </li> */}
                 </ul>
 
             </div>

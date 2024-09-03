@@ -8,6 +8,7 @@ const UploadList = () => {
   const [title, setTitle] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [medias, setMedias] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,7 +72,10 @@ const UploadList = () => {
             <input type="file" id="file" className="form-control" onChange={handleFileChange} />
           </div>
           <div className="d-flex justify-content-between">
-            <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
+            {/* <button className="btn btn-primary" onClick={handleUpload}>Upload</button> */}
+            <button className="btn btn-primary" onClick={handleUpload} disabled={isUploading}>
+              {isUploading ? 'Uploading...' : 'Upload'}
+            </button>
             <button className="btn btn-secondary" style={{ backgroundColor: '#ffc107', color: 'black', border: 'none' }} onClick={handleNext}>Next</button>
           </div>
         </div>
